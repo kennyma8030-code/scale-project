@@ -1,24 +1,8 @@
 import librosa 
 import numpy as np
 from scipy.stats import linregress
-
-MAJOR_SCALES = {
-        "C major":  ["C", "D", "E", "F", "G", "A", "B", "C"],
-        "G major":  ["G", "A", "B", "C", "D", "E", "F#", "G"],
-        "D major":  ["D", "E", "F#", "G", "A", "B", "C#", "D"],
-        "A major":  ["A", "B", "C#", "D", "E", "F#", "G#", "A"],
-        "E major":  ["E", "F#", "G#", "A", "B", "C#", "D#", "E"],
-        "B major":  ["B", "C#", "D#", "E", "F#", "G#", "A#", "B"],
-        "F# major": ["F#", "G#", "A#", "B", "C#", "D#", "E#", "F#"],
-        "C# major": ["C#", "D#", "E#", "F#", "G#", "A#", "B#", "C#"],
-        "F major":  ["F", "G", "A", "Bb", "C", "D", "E", "F"],
-        "Bb major": ["Bb", "C", "D", "Eb", "F", "G", "A", "Bb"],
-        "Eb major": ["Eb", "F", "G", "Ab", "Bb", "C", "D", "Eb"],
-        "Ab major": ["Ab", "Bb", "C", "Db", "Eb", "F", "G", "Ab"],
-        "Db major": ["Db", "Eb", "F", "Gb", "Ab", "Bb", "C", "Db"],
-        "Gb major": ["Gb", "Ab", "Bb", "Cb", "Db", "Eb", "F", "Gb"],
-        "Cb major": ["Cb", "Db", "Eb", "Fb", "Gb", "Ab", "Bb", "Cb"],
-}
+from models import Analytics
+from constants import MAJOR_SCALES
 
 class Functions:
     @staticmethod
@@ -47,7 +31,7 @@ class Functions:
             else:
                 results.append({"played": note, "correct": scale_notes[i]})
         
-        results.insert(0,f"score: {score}/7")
+        results.insert(0,{"score": score})
         return results
 
     @staticmethod
@@ -74,7 +58,7 @@ class Functions:
             if abs(z_scores[i]) > 1.5:
                 result.get("uneven_notes").append(f"{scale_notes[i]} - {scale_notes[i + 1]}")
         
-        return result
+        return cv # separate z scores into different function
     
     @staticmethod
     def tempo_eveness(sample):
@@ -105,13 +89,19 @@ class Functions:
         return onset_diffs
     
     @staticmethod
-    def run(filepath):
+    def run(filepath, scale):
         y, sr = librosa.load(filepath)
         sample = y, sr
 
-        res_intonation = Functions.intonation(sample)
+        res_intonation = Functions.intonation(sample, scale)
         res_tempo_evenness = Functions.tempo_eveness(sample)
-        res_detached_evenness = Functions.detached_evenness(sample)
+        slope, r = res_tempo_evenness
+        res_detached_evenness = Functions.detached_evenness(sample, scale)
+
+        return Analytics(intonation=res_intonation, 
+                         cv_evenness=res_detached_evenness, 
+                         tempo_slope=slope, 
+                         tempo_r=r)
 
 
 

@@ -1,15 +1,9 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-
-import librosa
-import numpy as np
-import os
+from scales import Functions
+import db
 
 app = FastAPI()
-
-
-
-
 
 app.add_middleware(
     CORSMiddleware,
@@ -19,6 +13,17 @@ app.add_middleware(
 )
 
 @app.post("/analyze")
-def analyze_scales(audio: UploadFile=File(...)):
+def analyze_scales(scale: str, filepath: UploadFile=File(...)):
+    analytics = Functions.run(filepath, scale)
+    db.save(analytics)
+    
     return
+
+@app.get("/scales")
+def get_all():
+    return db.get_all()
+
+@app.get("/scales/{scale}")
+def get_scale(scale: str):
+    return db.get_scale(scale)
 
