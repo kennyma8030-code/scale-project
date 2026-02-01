@@ -1,8 +1,9 @@
 import librosa 
 import numpy as np
 from scipy.stats import linregress
-from models import Analytics
+from models import analytics
 from constants import MAJOR_SCALES
+import db
 
 class Functions:
     @staticmethod
@@ -77,7 +78,7 @@ class Functions:
         
         slope, intercept, r, p, se = linregress(range(len(block_bpm)), block_bpm)
 
-        return slope, r
+        return slope, r, mean_bpm
 
     @staticmethod
     def get_diffs(sample):
@@ -93,15 +94,52 @@ class Functions:
         y, sr = librosa.load(filepath)
         sample = y, sr
 
-        res_intonation = Functions.intonation(sample, scale)
+        res_intonation = Functions.intonation(sample, scale)[0].get("score")
         res_tempo_evenness = Functions.tempo_eveness(sample)
-        slope, r = res_tempo_evenness
+        slope, r, mean_bpm = res_tempo_evenness
         res_detached_evenness = Functions.detached_evenness(sample, scale)
 
-        return Analytics(intonation=res_intonation, 
+        return analytics(intonation=res_intonation, 
                          cv_evenness=res_detached_evenness, 
                          tempo_slope=slope, 
-                         tempo_r=r)
+                         tempo_r=r,
+                         mean_tempo=mean_bpm)
+    
+    @staticmethod
+    def scale_trends(scale: str):
+        records = db.get_scale(scale)
+        return Functions.find_trends(records)
+    
+    @staticmethod
+    def all_trends():
+        records = db.get_all()
+        return Functions.find_trends(records)
+        
+    @staticmethod
+    def find_trends(records):
+        if len(records) < 2:
+            return {"error": "must have at least 2 records"}
+        
+        x = np.arange(len(records))
+        fields = ["intonation", "cv_evenness", "tempo_slope", "tempo_r", "mean_tempo"]
+        trends = {}
+
+        for field in fields:
+            y = np.array([getattr(record, field) for record in records])
+            model = linregress(x,y)
+
+            trends[field] = {
+                "slope": model.slope,
+                "r": model.rvalue,
+                "p": model.pvalue
+            }
+        
+        return trends
+        
+
+
+        
+
 
 
 

@@ -5,3 +5,4 @@ class analytics(BaseModel):
     cv_evenness: int
     tempo_slope: float
     tempo_r: float
+    mean_tempo: float
