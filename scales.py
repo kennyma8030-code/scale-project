@@ -17,16 +17,21 @@ class Functions:
             fmax=librosa.note_to_hz("C7")
         )
 
-        note_names = librosa.hz_to_note(f)
-        notes = [note_names[:-1] if note != "nan" else "none" for note in note_names]
-        onset_frames = librosa.onset.onset_detect(y, sr)
+        notes = []
+        for freq in f:
+            if not np.isnan(freq):
+                notes.append(librosa.hz_to_note(freq))
+
+        onset_frames = librosa.onset.onset_detect(y=y, sr=sr)
+
+        print(len(onset_frames))
         
         score = 0
         results = []
 
         for i in range(7):
             note_index = onset_frames[i]
-            note = notes[note_index]
+            note = notes[note_index][0]
             if note != "none" and note == scale_notes[i]:
                 score += 1
             else:
@@ -38,7 +43,7 @@ class Functions:
     @staticmethod
     def detached_evenness(scale, sample):
         scale_notes = MAJOR_SCALES.get(scale)
-        onset_diffs = Functions.get_diffs(scale, sample)
+        onset_diffs = Functions.get_diffs(sample)
         mean = np.mean(onset_diffs)
         std = np.std(onset_diffs, ddof=1)
         cv = 100 * (std / mean)
@@ -64,7 +69,7 @@ class Functions:
     @staticmethod
     def tempo_eveness(sample):
         onset_diffs = Functions.get_diffs(sample) #two octave scale
-        mean_bpm = 60 / onset_diffs
+        mean_bpm = (60 / onset_diffs).mean()
 
         block_bpm = []
         num_of_blocks = len(onset_diffs) // 4
@@ -83,21 +88,21 @@ class Functions:
     @staticmethod
     def get_diffs(sample):
         y, sr = sample
-        onset_frames = librosa.onset.onset_detect(y, sr)
+        onset_frames = librosa.onset.onset_detect(y=y, sr=sr)
         onset_times = librosa.frames_to_time(onset_frames)
         onset_diffs = np.diff(onset_times)
 
         return onset_diffs
     
     @staticmethod
-    def run(filepath, scale):
-        y, sr = librosa.load(filepath)
+    def run(file, scale):
+        y, sr = librosa.load(file.file)
         sample = y, sr
 
-        res_intonation = Functions.intonation(sample, scale)[0].get("score")
+        res_intonation = Functions.intonation(scale, sample)
         res_tempo_evenness = Functions.tempo_eveness(sample)
         slope, r, mean_bpm = res_tempo_evenness
-        res_detached_evenness = Functions.detached_evenness(sample, scale)
+        res_detached_evenness = Functions.detached_evenness(scale, sample)
 
         return analytics(intonation=res_intonation, 
                          cv_evenness=res_detached_evenness, 

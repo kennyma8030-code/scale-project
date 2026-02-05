@@ -10,10 +10,10 @@ class Scales(Base):
     date = Column(String)
     scale = Column(String)
     intonation = Column(Integer) 
-    cv_evenness = Column(Integer) 
-    tempo_slope = Column(Integer)
-    tempo_r = Column(Integer)
-    mean_tempo = Column(Integer)
+    cv_evenness = Column(Float) 
+    tempo_slope = Column(Float)
+    tempo_r = Column(Float)
+    mean_tempo = Column(Float)
 
 engine = create_engine("sqlite:///scales.db")
 Base.metadata.create_all(engine)
@@ -22,7 +22,6 @@ Session = sessionmaker(bind=engine)
 def save(analytics, scale):
     session = Session()
     new_record = Scales(date=datetime.now(),scale=scale, 
-                       intonation=analytics.intonation, 
                        cv_evenness=analytics.cv_evenness, 
                        tempo_slope=analytics.tempo_slope, 
                        tempo_r=analytics.tempo_r,

@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from scales import Functions
 import db
@@ -18,6 +18,7 @@ def analyze_scales(scale: str, filepath: UploadFile=File(...)):
     new_id = db.save(analytics, scale)
     return {"analytics": analytics, "id": new_id}
 
+
 @app.get("/id/{id}")
 def get_id(id: int):
     return db.get_id(id)
@@ -25,6 +26,10 @@ def get_id(id: int):
 @app.get("/scales")
 def get_all():
     return db.get_all()
+
+@app.get("/trends/all")
+def all_results():
+    return Functions.all_trends()
 
 @app.get("/scales/{scale}")
 def get_scale(scale: str):
@@ -34,8 +39,6 @@ def get_scale(scale: str):
 def scale_results(scale: str):
     return Functions.scale_trends(scale)
     
-@app.get("/trends/all")
-def all_results():
-    return Functions.all_trends()
+
 
 
