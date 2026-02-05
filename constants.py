@@ -16,3 +16,21 @@ MAJOR_SCALES = {
         "Gb major": ["Gb", "Ab", "Bb", "Cb", "Db", "Eb", "F", "Gb"],
         "Cb major": ["Cb", "Db", "Eb", "Fb", "Gb", "Ab", "Bb", "Cb"],
 }
+
+MAJOR_ARPEGGIOS_2OCT = {
+    "C major":  ["C", "E", "G", "C", "E", "G", "C"],
+    "G major":  ["G", "B", "D", "G", "B", "D", "G"],
+    "D major":  ["D", "F#", "A", "D", "F#", "A", "D"],
+    "A major":  ["A", "C#", "E", "A", "C#", "E", "A"],
+    "E major":  ["E", "G#", "B", "E", "G#", "B", "E"],
+    "B major":  ["B", "D#", "F#", "B", "D#", "F#", "B"],
+    "F# major": ["F#", "A#", "C#", "F#", "A#", "C#", "F#"],
+    "C# major": ["C#", "E#", "G#", "C#", "E#", "G#", "C#"],
+    "F major":  ["F", "A", "C", "F", "A", "C", "F"],
+    "Bb major": ["Bb", "D", "F", "Bb", "D", "F", "Bb"],
+    "Eb major": ["Eb", "G", "Bb", "Eb", "G", "Bb", "Eb"],
+    "Ab major": ["Ab", "C", "Eb", "Ab", "C", "Eb", "Ab"],
+    "Db major": ["Db", "F", "Ab", "Db", "F", "Ab", "Db"],
+    "Gb major": ["Gb", "Bb", "Db", "Gb", "Bb", "Db", "Gb"],
+    "Cb major": ["Cb", "Eb", "Gb", "Cb", "Eb", "Gb", "Cb"],
+}

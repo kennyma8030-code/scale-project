@@ -8,7 +8,8 @@ import db
 class Functions:
     @staticmethod
     def intonation(scale, sample):
-        scale_notes = MAJOR_SCALES.get(scale)
+        scale_notes = [note[0] for note in MAJOR_SCALES.get(scale)]
+        print(scale_notes)
         y, sr = sample
         
         f, flag, prob = librosa.pyin(
@@ -17,22 +18,46 @@ class Functions:
             fmax=librosa.note_to_hz("C7")
         )
 
+        onset_frames = librosa.onset.onset_detect(
+            y=y, 
+            sr=sr,
+            delta=0.1,
+            wait=20,           
+            pre_avg=5,         
+            post_avg=5,       
+            pre_max=5,          
+            post_max=5,                
+            backtrack=False)
+
         notes = []
-        for freq in f:
-            if not np.isnan(freq):
-                notes.append(librosa.hz_to_note(freq))
-
-        onset_frames = librosa.onset.onset_detect(y=y, sr=sr)
-
-        print(len(onset_frames))
         
+        for frame in onset_frames:
+            start = max(0, frame)
+            end = min(len(f), frame + 10)  
+            
+            freqs = f[start:end]
+            freqs = freqs[~np.isnan(freqs)]  
+            
+            if len(freqs) > 0:
+                avg_freq = np.median(freqs)
+                notes.append(librosa.hz_to_note(avg_freq))
+            else:
+                notes.append(None)
+        notes = [note[0] for note in notes]
+       
+        print(notes)
+
+        filtered_notes = [notes[0]]
+        for note in notes[1:]:
+            if note != filtered_notes[-1]:
+                filtered_notes.append(note)
+
         score = 0
         results = []
 
         for i in range(7):
-            note_index = onset_frames[i]
-            note = notes[note_index][0]
-            if note != "none" and note == scale_notes[i]:
+            note = filtered_notes[i]
+            if note is not None and note[0] == scale_notes[i]:
                 score += 1
             else:
                 results.append({"played": note, "correct": scale_notes[i]})
