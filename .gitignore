@@ -1,4 +1,8 @@
 __pycache__/
 venv/
 scales.db
+node_modules/
+dist/
+.env
+*.pyc
 
