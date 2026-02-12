@@ -21,7 +21,8 @@ Session = sessionmaker(bind=engine)
     
 def save(analytics, scale):
     session = Session()
-    new_record = Scales(date=datetime.now(),scale=scale, 
+    new_record = Scales(date=datetime.now(),scale=scale,
+                       intonation=analytics.intonation,  
                        cv_evenness=analytics.cv_evenness, 
                        tempo_slope=analytics.tempo_slope, 
                        tempo_r=analytics.tempo_r,
@@ -50,5 +51,19 @@ def get_all():
     all_analytics = session.query(Scales).order_by(Scales.id).all()
     session.close()
     return all_analytics
+
+def remove_all():
+    session = Session()
+    session.query(Scales).delete()
+    session.commit()
+    session.close()
+
+def remove_id(id: int):
+    session = Session()
+    session.query(Scales).filter(Scales.id == id).delete()
+    session.commit()
+    session.close()
+
+
 
 

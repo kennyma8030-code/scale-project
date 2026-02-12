@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from scales import Functions
 import db
 
-app = FastAPI()
+app = FastAPI() # python -m uvicorn main:app --reload to start
 
 app.add_middleware(
     CORSMiddleware,
@@ -38,6 +38,11 @@ def get_scale(scale: str):
 @app.get("/trends/{scale}")
 def scale_results(scale: str):
     return Functions.scale_trends(scale)
+
+@app.delete("/delete")
+def remove_all():
+    db.remove_all()
+    return {"message": "successfull"}
     
 
 

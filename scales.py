@@ -44,8 +44,6 @@ class Functions:
             else:
                 notes.append(None)
         notes = [note[0] for note in notes]
-       
-        print(notes)
 
         filtered_notes = [notes[0]]
         for note in notes[1:]:
@@ -63,7 +61,7 @@ class Functions:
                 results.append({"played": note, "correct": scale_notes[i]})
         
         results.insert(0,{"score": score})
-        return results
+        return score
 
     @staticmethod
     def detached_evenness(scale, sample):
@@ -113,7 +111,16 @@ class Functions:
     @staticmethod
     def get_diffs(sample):
         y, sr = sample
-        onset_frames = librosa.onset.onset_detect(y=y, sr=sr)
+        onset_frames = librosa.onset.onset_detect( 
+            y=y, 
+            sr=sr,
+            delta=0.1,
+            wait=20,           
+            pre_avg=5,         
+            post_avg=5,       
+            pre_max=5,          
+            post_max=5,                
+            backtrack=False)
         onset_times = librosa.frames_to_time(onset_frames)
         onset_diffs = np.diff(onset_times)
 
